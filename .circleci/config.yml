@@ -35,8 +35,6 @@ jobs:
       - restore_cache:
           keys:
             - puj-ci-stuff-{{ checksum ".circle-sha" }}
-      - run: pwd
-      - run: ls -l
       - run: lein test
 
 
