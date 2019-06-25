@@ -10,12 +10,16 @@ jobs:
       LEIN_ROOT: "true"
       JVM_OPTS: -Xmx3200m
     steps:
+      - run: cat $HOME/.lein/profiles.clj
+      - run: echo "{:user {:plugins [[jonase/eastwood "0.3.5"]] }}" > $HOME/.lein/profiles.clj
       - checkout
       - run: lein deps
       - save_cache:
           paths:
+            - $HOME/.lein/profiles.clj
             - ~/.m2
-          key: v1-dependencies-{{ checksum "project.clj" }}
+            - ~/puj
+          key: puj-ci-stuff-{{ checksum "project.clj" }}
 
   unit_test:
     docker:
@@ -27,8 +31,27 @@ jobs:
     steps:
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "project.clj" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+            - puj-ci-stuff-{{ checksum "project.clj" }}
       - run: lein test
-        
+
+  style_check:
+    docker:
+      - image: circleci/clojure:lein-2.7.1
+    working_directory: ~/puj
+    environment:
+      LEIN_ROOT: "true"
+      JVM_OPTS: -Xmx3200m
+    steps:
+      - restore_cache:
+          keys:
+            - puj-ci-stuff-{{ checksum "project.clj" }}
+      - run: lein eastwood
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build_setup
+      - unit:
+          requires:
+            - build_setup
