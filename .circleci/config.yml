@@ -10,13 +10,10 @@ jobs:
       LEIN_ROOT: "true"
       JVM_OPTS: -Xmx3200m
     steps:
-      - run: cat $HOME/.lein/profiles.clj
-      - run: echo "{:user {:plugins [[jonase/eastwood "0.3.5"]] }}" > $HOME/.lein/profiles.clj
       - checkout
       - run: lein deps
       - save_cache:
           paths:
-            - $HOME/.lein/profiles.clj
             - ~/.m2
             - ~/puj
           key: puj-ci-stuff-{{ checksum "project.clj" }}
@@ -34,24 +31,12 @@ jobs:
             - puj-ci-stuff-{{ checksum "project.clj" }}
       - run: lein test
 
-  style_check:
-    docker:
-      - image: circleci/clojure:lein-2.7.1
-    working_directory: ~/puj
-    environment:
-      LEIN_ROOT: "true"
-      JVM_OPTS: -Xmx3200m
-    steps:
-      - restore_cache:
-          keys:
-            - puj-ci-stuff-{{ checksum "project.clj" }}
-      - run: lein eastwood
 
 workflows:
   version: 2
   build:
     jobs:
       - build_setup
-      - unit:
+      - unit_test:
           requires:
             - build_setup
