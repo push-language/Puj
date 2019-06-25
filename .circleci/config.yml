@@ -10,13 +10,16 @@ jobs:
       LEIN_ROOT: "true"
       JVM_OPTS: -Xmx3200m
     steps:
+      - run:
+          name: save SHA to a file
+          command: echo $CIRCLE_SHA1 > .circle-sha
       - checkout
       - run: lein deps
       - save_cache:
           paths:
             - ~/.m2
             - ~/puj
-          key: puj-ci-stuff-{{ checksum "project.clj" }}
+          key: puj-ci-stuff-{{ checksum ".circle-sha" }}
 
   unit_test:
     docker:
@@ -28,8 +31,9 @@ jobs:
     steps:
       - restore_cache:
           keys:
-            - puj-ci-stuff-{{ checksum "project.clj" }}
+            - puj-ci-stuff-{{ checksum ".circle-sha" }}
       - run: pwd
+      - run: ls -l
       - run: lein test
 
 
