@@ -29,6 +29,7 @@ jobs:
       - restore_cache:
           keys:
             - puj-ci-stuff-{{ checksum "project.clj" }}
+      - run: pwd
       - run: lein test
 
 
