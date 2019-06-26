@@ -46,33 +46,38 @@
   (required-stacks [this] "A set of stack names relevant to the instruction."))
 
 
-; @TODO: Allow for non-collection instruction results.
-
+; 
 (defrecord SimpleInstruction [input-stacks output-stacks opens func]
   PushInstruction
   (open-count [_] opens)
-  (required-stacks [_] (set (concat input-stacks output-stacks)))
+  (required-stacks [_] (set (concat input-stacks
+                                    (if (coll? output-stacks) ; If output-stacks is not a collection, make it one.
+                                      output-stacks
+                                      [output-stacks]))))
 
   PushUnit
   (push-unit-type [_] :instruction)
   (eval-push-unit [this state]
     (let [args (state/observe-stacks state input-stacks)]
-      (if (some nil? args)
+      (if (some nil? args) ; Check if there are enough arguments from required stacks
         state
         (let [results (apply (:func this) args)]
           (cond
             (= results :revert)
             state
 
-            (not (coll? results))
-            (throw (AssertionError.
-                     (str/format "Instruction result must be a collection. Got $t."
-                                 {:t (str (type results))})))
-
             :else
             (-> state
                 (state/pop-from-stacks input-stacks)
-                (state/push-to-stacks results output-stacks))))))))
+                (state/push-to-stacks
+                 ; push-to-stacks expects a collection. If results is not a collection, make it one.
+                 (if (coll? results)
+                   results
+                   [results])
+                 ; same with output-stacks
+                 (if (coll? output-stacks)
+                   output-stacks
+                   [output-stacks])))))))))
 
 
 (defrecord StateToStateInstruction [used-stacks opens func]
