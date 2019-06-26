@@ -47,8 +47,8 @@
 
 
 (defn run
-  [program inputs stack->type instruction-set & {:keys [validate?]}]
   "Run a Push program."
+  [program inputs stack->type instruction-set & {:keys [validate?]}]
   (if validate?
     (validate-interpretation-context program stack->type instruction-set))
   ; @TODO: Add some kind of flexible metering system.
