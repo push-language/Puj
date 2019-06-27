@@ -9,10 +9,10 @@
 
 
 (defn validate-interpretation-context
-  "Raises an error if the given `program`, `stack->type`, and `intruction-set` cannot be used
+  "Raises an error if the given `program`, `type-set`, and `intruction-set` cannot be used
   together to evaluate Push programs."
-  [program stack->type instruction-set]
-  (let [supported-stacks (set (keys stack->type))
+  [program type-set instruction-set]
+  (let [supported-stacks (typ/supported-stacks type-set)
         iset-required-stacks (i-set/required-stacks instruction-set)
         prog-required-stacks (set (doall (concat (vals (::prog/input-scheme program))
                                                  (vals (::prog/output-scheme program)))))]
@@ -24,14 +24,14 @@
 
 (defn process-untyped
   "Route all items in the untyped queue onto their corresponding stacks by performing
-  a lookup using the `stack->type` mapping."
-  [state stack->type]
+  a lookup using the `type-set` mapping."
+  [state type-set]
   (loop [new-state state]
     (if (empty? (::state/untyped new-state))
       new-state
       (recur
         (let [val (first (::state/untyped new-state))
-              dest (typ/stack-for val stack->type)
+              dest (typ/stack-for val type-set)
               new-untyped (pop (::state/untyped new-state))]
           (-> new-state
               (state/push-item dest val)
@@ -48,11 +48,11 @@
 
 (defn run
   "Run a Push program."
-  [program inputs stack->type instruction-set & {:keys [validate?]}]
+  [program inputs type-set instruction-set & {:keys [validate?]}]
   (if validate?
-    (validate-interpretation-context program stack->type instruction-set))
+    (validate-interpretation-context program type-set instruction-set))
   ; @TODO: Add some kind of flexible metering system.
-  (loop [state (-> (state/make-state stack->type)
+  (loop [state (-> (state/make-state type-set)
                    (state/load-inputs inputs)
                    (state/load-program program))]
     (if (empty? (state/get-stack state :exec))
@@ -62,4 +62,4 @@
             output-values (state/observe-stacks state output-stacks)
             outputs (zipmap output-names output-values)]
         (prog/make-program-result program inputs outputs))
-      (recur (process-untyped (step state) stack->type)))))
+      (recur (process-untyped (step state) type-set)))))

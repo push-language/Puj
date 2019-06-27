@@ -33,9 +33,9 @@
 
 
 (defn make-literal
-  "Create a Push literal by recognizing the corresponding Push stack based on the `stack->type`."
-  [value stack->type]
-  (let [s (type/stack-for value stack->type)]
+  "Create a Push literal by recognizing the corresponding Push stack based on the `type-set`."
+  [value type-set]
+  (let [s (type/stack-for value type-set)]
     (if (not (nil? s))
       (Literal. value s))))
 

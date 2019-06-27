@@ -3,19 +3,19 @@
             [clojure.spec.alpha :as spec]
             [puj.push.unit :as u]
             [puj.push.state :as st]
-            [puj.push.type :as t]
+            [puj.push.type :as typ]
             [puj.push.state :as state]))
 
 
 (deftest push-literal-test
   (let [int-lit (u/->Literal 5 :int)
         str-lit (u/->Literal "Foo" :string)
-        mock-stack->type {:int    (spec/get-spec ::t/int)
-                          :string (spec/get-spec ::t/string)}
-        empty-state (st/make-state mock-stack->type)]
+        mock-type-set #{{::typ/stack-name :int ::typ/spec (spec/get-spec ::typ/int) ::typ/coercer int}
+                        {::typ/stack-name :string ::typ/spec (spec/get-spec ::typ/string) ::typ/coercer str}}
+        empty-state (st/make-state mock-type-set)]
 
     (testing "literal creation"
-      (is (= (u/make-literal 5 mock-stack->type) int-lit)))
+      (is (= (u/make-literal 5 mock-type-set) int-lit)))
 
     (testing "literal evaluation"
       (is (= (u/eval-push-unit int-lit empty-state)
@@ -31,8 +31,8 @@
 
 
 (deftest push-instruction-test
-  (let [mock-stack->type {:int (spec/get-spec ::t/int)}
-        empty-state (st/make-state mock-stack->type)
+  (let [mock-type-set #{{::typ/stack-name :int ::typ/spec (spec/get-spec ::typ/int) ::typ/coercer int}}
+        empty-state (st/make-state mock-type-set)
         mock-state (st/set-stack empty-state :int '(5 3))]
 
     (testing "simple instructions"
@@ -73,8 +73,8 @@
 
 
 (deftest push-code-block-test
-  (let [mock-stack->type {:int (spec/get-spec ::t/int)}
-        empty-state (st/make-state mock-stack->type)
+  (let [mock-type-set #{{::typ/stack-name :int ::typ/spec (spec/get-spec ::typ/int) ::typ/coercer int}}
+        empty-state (st/make-state mock-type-set)
         lit (u/->Literal 5 :int)
         instr (u/->SimpleInstruction [:int] [:int] 0 #(list (inc %)))
         code-block (list lit instr)]
