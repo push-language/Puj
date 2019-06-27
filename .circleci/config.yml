@@ -10,6 +10,9 @@ jobs:
       LEIN_ROOT: "true"
       JVM_OPTS: -Xmx3200m
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "f2:99:0d:3d:49:06:5c:73:d9:77:2e:1a:0f:30:90:66"
       - checkout
       - run:
           name: save SHA to a file
