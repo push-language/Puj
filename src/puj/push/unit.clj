@@ -45,6 +45,12 @@
   (open-count [this] "The number of CodeBlocks to open following the instruction. Used by linear genomes.")
   (required-stacks [this] "A set of stack names relevant to the instruction."))
 
+(defn make-collection
+  "If thing is a collection, returns it. Otherwise, returns it in a vector"
+  [thing]
+  (if (coll? thing)
+    thing
+    [thing]))
 
 ; 
 (defrecord SimpleInstruction [input-stacks output-stacks opens func]
@@ -71,13 +77,9 @@
                 (state/pop-from-stacks input-stacks)
                 (state/push-to-stacks
                  ; push-to-stacks expects a collection. If results is not a collection, make it one.
-                 (if (coll? results)
-                   results
-                   [results])
+                 (make-collection results)
                  ; same with output-stacks
-                 (if (coll? output-stacks)
-                   output-stacks
-                   [output-stacks])))))))))
+                 (make-collection output-stacks)))))))))
 
 
 (defrecord StateToStateInstruction [used-stacks opens func]
@@ -103,7 +105,7 @@
     (let [results ((:func this) state)]
       (if (= results :revert)
         state
-        (state/push-to-stacks state results output-stacks)))))
+        (state/push-to-stacks state results (make-collection output-stacks))))))
 
 
 (defrecord ProducesManyOfTypeInstruction [input-stacks output-stack opens func]
