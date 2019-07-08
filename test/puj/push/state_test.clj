@@ -95,7 +95,17 @@
              {:inputs {}
               :stdout ""
               :untyped (state/queue)
-              :stacks {:int '(10 5 3 1) :string '("y" "z" "a" "b") :exec '()}})))
+              :stacks {:int '(10 5 3 1) :string '("y" "z" "a" "b") :exec '()}}))
+      (is (= (state/push-to-stacks mock-state [11] [:int])
+             {:inputs {}
+              :stdout ""
+              :untyped (state/queue)
+              :stacks {:int '(11 5 3 1) :string '("a" "b") :exec '()}}))
+      (is (= (state/push-to-stacks mock-state ["puj"] [:string])
+             {:inputs {}
+              :stdout ""
+              :untyped (state/queue)
+              :stacks {:int '(5 3 1) :string '("puj" "a" "b") :exec '()}})))
 
     (testing "state size"
       (is (= (state/size mock-state) 5)))
