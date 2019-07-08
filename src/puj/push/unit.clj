@@ -56,10 +56,7 @@
 (defrecord SimpleInstruction [input-stacks output-stacks opens func]
   PushInstruction
   (open-count [_] opens)
-  (required-stacks [_] (set (concat input-stacks
-                                    (if (coll? output-stacks) ; If output-stacks is not a collection, make it one.
-                                      output-stacks
-                                      [output-stacks]))))
+  (required-stacks [_] (set (concat input-stacks (make-collection output-stacks))))
 
   PushUnit
   (push-unit-type [_] :instruction)
