@@ -25,13 +25,13 @@ before time is spent on code.
 
 Contributions which add new features or result in large changes to the codebase should be discussed by the community
 [in an issue](https://github.com/push-language/Puj/issues) before being implemented. Once an issue has been fully
-discussed it will be considered ready for a [pul request](https://github.com/push-language/Puj/pulls).
+discussed it will be considered ready for a [pull request](https://github.com/push-language/Puj/pulls).
 
 ## Workflow for contributions
 
 1. Fork the repository
 2. Create a feature branch (aka topic branch) for your changes.
-3. Add you code changes.
+3. Add your code changes.
     - Be sure to add adequate tests and documentation for your change, if applicable.
     - Contributions which use a sane code style will be appreciated. :)
 4. Ensure all tests are passing.

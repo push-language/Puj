@@ -45,34 +45,38 @@
   (open-count [this] "The number of CodeBlocks to open following the instruction. Used by linear genomes.")
   (required-stacks [this] "A set of stack names relevant to the instruction."))
 
+(defn make-collection
+  "If thing is a collection, returns it. Otherwise, returns it in a vector"
+  [thing]
+  (if (coll? thing)
+    thing
+    [thing]))
 
-; @TODO: Allow for non-collection instruction results.
-
+; 
 (defrecord SimpleInstruction [input-stacks output-stacks opens func]
   PushInstruction
   (open-count [_] opens)
-  (required-stacks [_] (set (concat input-stacks output-stacks)))
+  (required-stacks [_] (set (concat input-stacks (make-collection output-stacks))))
 
   PushUnit
   (push-unit-type [_] :instruction)
   (eval-push-unit [this state]
     (let [args (state/observe-stacks state input-stacks)]
-      (if (some nil? args)
+      (if (some nil? args) ; Check if there are enough arguments from required stacks
         state
         (let [results (apply (:func this) args)]
           (cond
             (= results :revert)
             state
 
-            (not (coll? results))
-            (throw (AssertionError.
-                     (str/format "Instruction result must be a collection. Got $t."
-                                 {:t (str (type results))})))
-
             :else
             (-> state
                 (state/pop-from-stacks input-stacks)
-                (state/push-to-stacks results output-stacks))))))))
+                (state/push-to-stacks
+                 ; push-to-stacks expects a collection. If results is not a collection, make it one.
+                 (make-collection results)
+                 ; same with output-stacks
+                 (make-collection output-stacks)))))))))
 
 
 (defrecord StateToStateInstruction [used-stacks opens func]
@@ -98,7 +102,7 @@
     (let [results ((:func this) state)]
       (if (= results :revert)
         state
-        (state/push-to-stacks state results output-stacks)))))
+        (state/push-to-stacks state results (make-collection output-stacks))))))
 
 
 (defrecord ProducesManyOfTypeInstruction [input-stacks output-stack opens func]
