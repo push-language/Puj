@@ -50,7 +50,7 @@
   "Run a Push program."
   [program inputs type-set instruction-set & {:keys [validate?]}]
   (when validate?
-    (validate-interpretation-context program stack->type instruction-set))
+    (validate-interpretation-context program type-set instruction-set))
   ; @TODO: Add some kind of flexible metering system.
   (loop [state (-> (state/make-state type-set)
                    (state/load-inputs inputs)
