@@ -6,14 +6,14 @@
   {
    :string-take
    (with-meta
-     (u/->SimpleInstruction
+     (u/simple-instruction
        [:string :int] [:string] 0
        #(vector (apply str (take %2 %1))))
      {:puj.push.instruction/doc "Pushes the first `n` characters of the top string as a new string."})
 
    :string-drop
    (with-meta
-     (u/->SimpleInstruction
+     (u/simple-instruction
        [:string :int] [:string] 0
        #(vector (apply str (drop %2 %1))))
      {:puj.push.instruction/doc "Pushes the first `n` characters of the top string as a new string."})

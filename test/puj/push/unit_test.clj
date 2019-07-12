@@ -2,9 +2,9 @@
   (:require [clojure.test :refer :all]
             [clojure.spec.alpha :as spec]
             [puj.push.unit :as u]
-            [puj.push.state :as st]
+            [puj.push.pushstate :as st]
             [puj.push.type :as typ]
-            [puj.push.state :as state]))
+            [puj.push.pushstate :as state]))
 
 (deftest make-collection-test
   (testing "make-collection function"
