@@ -1,4 +1,4 @@
-(ns puj.push.state
+(ns puj.push.pushstate
   (:require [clojure.spec.alpha :as spec]
             [puj.push.stack :as stack]
             [puj.push.type :as typ])

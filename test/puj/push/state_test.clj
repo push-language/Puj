@@ -1,7 +1,7 @@
 (ns puj.push.state-test
   (:require [clojure.test :refer :all]
             [clojure.spec.alpha :as spec]
-            [puj.push.state :as state]
+            [puj.push.pushstate :as state]
             [puj.push.type :as typ]))
 
 
