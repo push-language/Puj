@@ -6,10 +6,11 @@
 
 
 (deftest push-state-test
-  (let [stack->type {:int (spec/get-spec ::typ/int)}
-        empty-state (state/make-state stack->type)
+  (let [type-set #{{::typ/stack-name :int ::typ/spec (spec/get-spec ::typ/int) ::typ/coercer int}
+                   {::typ/stack-name :string ::typ/spec (spec/get-spec ::typ/string) ::typ/coercer str}}
+        empty-state (state/make-state type-set)
         mock-program {:puj.push.program/code '(7 "Puj")}
-        mock-state (-> (state/make-state typ/base-stack->type)
+        mock-state (-> empty-state
                        (state/set-stack :int '(5 3 1))
                        (state/set-stack :string '("a" "b")))]
 
@@ -22,7 +23,7 @@
              {:inputs {}
               :stdout ""
               :untyped (state/queue)
-              :stacks {:int '() :exec '()}})))
+              :stacks {:int '() :string '() :exec '()}})))
 
     (testing "flush stack"
       (is (= (state/flush-stack mock-state :int)
@@ -70,14 +71,14 @@
              {:inputs {}
               :stdout ""
               :untyped (state/queue)
-              :stacks {:int '() :exec '(7 "Puj")}})))
+              :stacks {:int '() :string '() :exec '(7 "Puj")}})))
 
     (testing "loading inputs"
       (is (= (state/load-inputs empty-state {:i 7 :s "Puj"})
              {:inputs {:i 7 :s "Puj"}
               :stdout ""
               :untyped (state/queue)
-              :stacks {:int '() :exec '()}})))
+              :stacks {:int '() :string '() :exec '()}})))
 
     (testing "observing values from stacks"
       (is (= (state/observe-stacks mock-state [:int :string :int])

@@ -9,7 +9,7 @@
 
 
 (deftest push-interpreter-test
-  (let [stack->type {:int (spec/get-spec ::typ/int)}
+  (let [type-set #{{::typ/stack-name :int ::typ/spec (spec/get-spec ::typ/int) ::typ/coercer int}}
         i-set (i-set/base-instruction-set :name-regex #"int-add|int-sub")]
 
     (testing "simple program execution"
@@ -17,7 +17,7 @@
                       (list (u/->Literal 1 :int) (u/->Literal 2 :int) (:int-add i-set))
                       {}
                       {:i :int})]
-        (is (= (interp/run program {} stack->type i-set :validate? true)
+        (is (= (interp/run program {} type-set i-set :validate? true)
                {::prog/program program
                 ::prog/inputs {}
                 ::prog/outputs {:i 3}}))))
@@ -27,7 +27,7 @@
                       (list (u/->Literal 1 :int) (list (u/->Literal 2 :int) (:int-add i-set)))
                       {}
                       {:i :int})]
-        (is (= (interp/run program {} stack->type i-set :validate? true)
+        (is (= (interp/run program {} type-set i-set :validate? true)
                {::prog/program program
                 ::prog/inputs {}
                 ::prog/outputs {:i 3}}))))
