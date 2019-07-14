@@ -61,7 +61,7 @@
   PushUnit
   (push-unit-type [_] :instruction)
   (eval-push-unit [this state]
-    (let [args (state/observe-stacks state input-stacks)]
+    (let [args (reverse (state/observe-stacks state input-stacks))]
       (if (some nil? args) ; Check if there are enough arguments from required stacks
         state
         (let [results (apply (:func this) args)]
@@ -113,7 +113,7 @@
   PushUnit
   (push-unit-type [_] :instruction)
   (eval-push-unit [this state]
-    (let [args (state/observe-stacks state input-stacks)]
+    (let [args (reverse (state/observe-stacks state input-stacks))]
       (if (some nil? args)
         state
         (let [results (apply (:func this) args)]
@@ -129,4 +129,5 @@
             :else
             (-> state
                 (state/pop-from-stacks input-stacks)
-                (state/push-to-stacks results (repeat (count results) output-stack)))))))))
+                (state/push-to-stacks results (repeat (count results) output-stack))))))))
+  )
