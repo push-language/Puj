@@ -66,8 +66,7 @@
   "Raises error if argument is not a valid `type-set`."
   [type-set]
   (do
-    (when (not (spec/valid? ::type-set type-set))
-      (throw (AssertionError. (spec/explain-str ::type-set type-set))))
+    (u/ensure-valid (spec/get-spec ::type-set) type-set)
     (assert (not (some reserved-stack-names
                        (map ::stack-name type-set)))
             "Provided type-set uses reserved stack names.")))

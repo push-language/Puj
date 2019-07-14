@@ -6,11 +6,13 @@
             [puj.push.type :as typ]
             [puj.push.pushstate :as state]))
 
+
 (deftest make-collection-test
   (testing "make-collection function"
     (is (= [5] (u/make-collection 5)))
     (is (= [4] (u/make-collection [4])))
     (is (= '(:hello) (u/make-collection '(:hello))))))
+
 
 (deftest push-literal-test
   (let [int-lit (u/->Literal 5 :int)
