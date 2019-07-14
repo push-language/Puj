@@ -3,8 +3,7 @@
             [clojure.spec.alpha :as spec]
             [puj.push.unit :as u]
             [puj.push.pushstate :as st]
-            [puj.push.type :as typ]
-            [puj.push.pushstate :as state]))
+            [puj.push.type :as typ]))
 
 (deftest make-collection-test
   (testing "make-collection function"
@@ -50,12 +49,12 @@
                 :stacks {:int '(8) :exec '()}}))))
 
     (testing "state-to-state instructions"
-      (let [int-flush (u/->StateToStateInstruction [:int] 0 #(state/flush-stack % :int))]
+      (let [int-flush (u/->StateToStateInstruction [:int] 0 #(st/flush-stack % :int))]
         (is (= (u/eval-push-unit int-flush empty-state) empty-state))
         (is (= (u/eval-push-unit int-flush mock-state) empty-state))))
 
     (testing "takes-state instructions"
-      (let [int-depth (u/->TakesStateInstruction [:int] [] 0 #(list (state/stack-size % :int)))]
+      (let [int-depth (u/->TakesStateInstruction [:int] [] 0 #(list (st/stack-size % :int)))]
         (is (= (u/eval-push-unit int-depth empty-state)
                {:inputs {}
                 :stdout ""

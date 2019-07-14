@@ -84,12 +84,15 @@
   handles popping its own function arguments and pushing the function return values.
 
   The first step of evaluating a SimpleInstruction is to pop the arguments from the stacks corresponding
-  to the instruction's `input-stacks` list. If multiple occurrences of the same type are in `input_stacks`,
-  items are taken from progressively deeper in that stack. If the stacks of the  PushState do not contain
-  a sufficient number of items, the instruction does not modify the PushState.
+  to the instruction's `input-stacks` which can either be a single stack name (keyword) or a vector of stack names.
+
+  If multiple occurrences of the same type are in `input-stacks`, items are taken from progressively deeper
+  in that stack. If the stacks of the  PushState do not contain a sufficient number of items, the instruction
+  does not modify the PushState.
 
   The popped arguments are then passed to the instruction's function to produce the return value(s).
-  The return value(s) are then routed to the corresponding stacks specified in the instruction's `output-stacks`."
+  The return value(s) are then routed to the corresponding stacks specified in the instruction's `output-stacks`
+  which is also either a single stack name (keyword) or a vector of stack names."
   [input-stacks output-stacks opens func]
   (->SimpleInstruction input-stacks output-stacks opens func))
 
@@ -131,8 +134,8 @@
   TakesStateInstruction accepts an entire PushState as input and produces either a `:revert` token
   or some return values.
 
-  The return values are then routed to the corresponding stacks specified in the instruction's `output_stacks`.
-  Additional PushTypes utilized by the instruction are denoted in `other_stacks`."
+  The return values are then routed to the corresponding stacks specified in the instruction's `output-stacks`.
+  Additional PushTypes utilized by the instruction are denoted in `other-stacks`."
   [output-stacks other-stacks opens func]
   (->TakesStateInstruction output-stacks other-stacks opens func))
 
@@ -166,11 +169,12 @@
 
 (defn produces-many-of-type-instruction
   "Creates a `ProducesManyOfTypeInstruction` that produces arbitrarily many values of a given PushType.
-  `ProducesManyOfTypeInstructions` pop their arguments in the same was as `SimpleInstructions`. Items
-  are popped from the stacks corresponding the types denoted in the `input_stacks` list. If multiple
-  occurrences of the same type are in `input_stacks`, items are taken from progressively deeper in that stack.
-  If the stacks of the PushState do not contain a sufficent number of items, the instruction does not modify
-  the PushState.
+  `ProducesManyOfTypeInstructions` pop their arguments in the same was as `SimpleInstructions`.
+
+  Items are popped from the stacks corresponding the types denoted in the `input-stacks` which can either
+  be a single stack name (keyword) or a vector of stack names. If multiple occurrences of the same type are
+  in `input-stacks`, items are taken from progressively deeper in that stack. If the stacks of the PushState
+  do not contain a sufficient number of items, the instruction does not modify the PushState.
 
   The popped arguments are then passed to the instruction's function to produce a collection of return values.
   All return values are pushed individually to the stack denoted in `output_stack`."
