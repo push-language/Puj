@@ -33,4 +33,9 @@
             a (count (get observed-distribution "a"))
             b (count (get observed-distribution "b"))]
         (is (> b a))
-        (is (> a 0))))))
+        (is (> a 0))))
+
+    (testing "handles zero probability"
+      (let [samples (sample-distribution {:a 0 :b 1} 1000)]
+        (is (not (some #{:a} samples)))
+        (is (not (some nil? samples)))))))
