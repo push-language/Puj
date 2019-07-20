@@ -1,7 +1,7 @@
 (ns puj.push.program
   (:require [clojure.spec.alpha :as spec]
             [puj.push.unit :as u]
-            [puj.push.state :as state]))
+            [puj.push.pushstate :as pushstate]))
 
 
 (spec/def ::code (spec/and (spec/coll-of u/push-unit?) u/push-unit?))
@@ -11,7 +11,7 @@
 
 
 (spec/def ::trigger
-  (spec/fspec :args [:old ::state/state :new ::state/state]
+  (spec/fspec :args [:old ::pushstate/state :new ::pushstate/state]
               :ret boolean?))
 (spec/def ::revert-triggers (spec/coll-of ::trigger))
 (spec/def ::stop-triggers (spec/coll-of ::trigger))
