@@ -73,7 +73,7 @@
                {:inputs {}
                 :stdout ""
                 :untyped (st/queue)
-                :stacks {:int '(5 5 5) :exec '()}}))))))
+                :stacks {:int '(3 3 3 3 3) :exec '()}}))))))
 
 
 (deftest push-code-block-test
