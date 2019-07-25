@@ -45,6 +45,7 @@
   (open-count [this] "The number of CodeBlocks to open following the instruction. Used by linear genomes.")
   (required-stacks [this] "A set of stack names relevant to the instruction."))
 
+
 (defn make-collection
   "If thing is a collection, returns it. Otherwise, returns it in a vector"
   [thing]
