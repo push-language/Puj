@@ -3,8 +3,7 @@
             [clojure.set :as set]
             [puj.push.unit :as u]
             [puj.push.instructions.numeric :as numeric]
-            [puj.push.instructions.text :as text]
-            [puj.util :refer [keyword-to-str]]))
+            [puj.push.instructions.text :as text]))
 
 
 (spec/def ::push-instruction
@@ -26,7 +25,7 @@
   (apply merge
     (map (fn [gen]
            (->> (gen)
-                (filter (fn [[name instruction]]
+                (filter (fn [[instr-name instruction]]
                           (cond
                             (and (nil? name-regex) (nil? related-stacks))
                             true
@@ -35,11 +34,11 @@
                             (some (set related-stacks) (u/required-stacks instruction))
 
                             (nil? related-stacks)
-                            (re-matches name-regex (keyword-to-str name))
+                            (re-matches name-regex (name instr-name))
 
                             :else
                             (and (some (set related-stacks) (u/required-stacks instruction))
-                                 (re-matches name-regex (keyword-to-str name))))))
+                                 (re-matches name-regex (name instr-name))))))
                 (into {})))
          (base-instruction-generators))))
 
