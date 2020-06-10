@@ -41,7 +41,7 @@
   [underlying-types]
   (->> underlying-types
        (map (fn [push-type]
-              {::stack-name (keyword (str (u/keyword-to-str (::stack-name push-type)) "-vector"))
+              {::stack-name (keyword (str (name (::stack-name push-type)) "-vector"))
                ::spec (spec->vec-spec (::spec push-type))
                ; @TODO: Heavy use of coercion and vector types will be slow.
                ::coercer #(vec (map (::coercer push-type) %))}))
