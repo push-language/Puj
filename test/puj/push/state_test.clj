@@ -6,9 +6,9 @@
 
 
 (deftest push-state-test
-  (let [type-set #{{::typ/stack-name :int ::typ/spec (spec/get-spec ::typ/int) ::typ/coercer int}
-                   {::typ/stack-name :string ::typ/spec (spec/get-spec ::typ/string) ::typ/coercer str}}
-        empty-state (state/make-state type-set)
+  (let [type-library {:int    {::typ/type-name :int ::typ/spec (spec/get-spec ::typ/int) ::typ/coercer int}
+                      :string {::typ/type-name :string ::typ/spec (spec/get-spec ::typ/string) ::typ/coercer str}}
+        empty-state (state/make-state type-library)
         mock-program {:puj.push.program/code '(7 "Puj")}
         mock-state (-> empty-state
                        (state/set-stack :int '(5 3 1))
@@ -19,32 +19,32 @@
       (is (spec/valid? ::state/state mock-state)))
 
     (testing "state creation"
-      (is (= empty-state
-             {:inputs {}
-              :stdout ""
+      (is (= {:inputs  {}
+              :stdout  ""
               :untyped (state/queue)
-              :stacks {:int '() :string '() :exec '()}})))
+              :stacks  {:int '() :string '() :exec '()}}
+             empty-state)))
 
     (testing "flush stack"
-      (is (= (state/flush-stack mock-state :int)
-             {:inputs {}
-              :stdout ""
+      (is (= {:inputs  {}
+              :stdout  ""
               :untyped (state/queue)
-              :stacks {:int '() :string '("a" "b") :exec '()}})))
+              :stacks  {:int '() :string '("a" "b") :exec '()}}
+             (state/flush-stack mock-state :int))))
 
     (testing "push item"
-      (is (= (state/push-item mock-state :int 10)
-             {:inputs {}
-              :stdout ""
+      (is (= {:inputs  {}
+              :stdout  ""
               :untyped (state/queue)
-              :stacks {:int '(10 5 3 1) :string '("a" "b") :exec '()}})))
+              :stacks  {:int '(10 5 3 1) :string '("a" "b") :exec '()}}
+             (state/push-item mock-state :int 10))))
 
     (testing "pop item"
-      (is (= (state/pop-item mock-state :int)
-             {:inputs {}
-              :stdout ""
+      (is (= {:inputs  {}
+              :stdout  ""
               :untyped (state/queue)
-              :stacks {:int '(3 1) :string '("a" "b") :exec '()}})))
+              :stacks  {:int '(3 1) :string '("a" "b") :exec '()}}
+             (state/pop-item mock-state :int))))
 
     (testing "nth item"
       (is (= (state/nth-item mock-state :int 1) 3)))
@@ -53,60 +53,60 @@
       (is (= (state/top-item mock-state :int) 5)))
 
     (testing "insert item"
-      (is (= (state/insert-item mock-state :int 1 10)
-             {:inputs {}
-              :stdout ""
+      (is (= {:inputs  {}
+              :stdout  ""
               :untyped (state/queue)
-              :stacks {:int '(5 10 3 1) :string '("a" "b") :exec '()}})))
+              :stacks  {:int '(5 10 3 1) :string '("a" "b") :exec '()}}
+             (state/insert-item mock-state :int 1 10))))
 
     (testing "set nth item"
-      (is (= (state/set-nth-item mock-state :int 1 10)
-             {:inputs {}
-              :stdout ""
+      (is (= {:inputs  {}
+              :stdout  ""
               :untyped (state/queue)
-              :stacks {:int '(5 10 1) :string '("a" "b") :exec '()}})))
+              :stacks  {:int '(5 10 1) :string '("a" "b") :exec '()}}
+             (state/set-nth-item mock-state :int 1 10))))
 
     (testing "loading a program"
-      (is (= (state/load-program empty-state mock-program)
-             {:inputs {}
-              :stdout ""
+      (is (= {:inputs  {}
+              :stdout  ""
               :untyped (state/queue)
-              :stacks {:int '() :string '() :exec '(7 "Puj")}})))
+              :stacks  {:int '() :string '() :exec '(7 "Puj")}}
+             (state/load-program empty-state mock-program))))
 
     (testing "loading inputs"
-      (is (= (state/load-inputs empty-state {:i 7 :s "Puj"})
-             {:inputs {:i 7 :s "Puj"}
-              :stdout ""
+      (is (= {:inputs  {:i 7 :s "Puj"}
+              :stdout  ""
               :untyped (state/queue)
-              :stacks {:int '() :string '() :exec '()}})))
+              :stacks  {:int '() :string '() :exec '()}}
+             (state/load-inputs empty-state {:i 7 :s "Puj"}))))
 
     (testing "observing values from stacks"
       (is (= (state/observe-stacks mock-state [:int :string :int])
              [5 "a" 3])))
 
     (testing "pop collections of values from stacks"
-      (is (= (state/pop-from-stacks mock-state [:int :string :int])
-             {:inputs {}
-               :stdout ""
-               :untyped (state/queue)
-               :stacks {:int '(1) :string '("b") :exec '()}})))
+      (is (= {:inputs  {}
+              :stdout  ""
+              :untyped (state/queue)
+              :stacks  {:int '(1) :string '("b") :exec '()}}
+             (state/pop-from-stacks mock-state [:int :string :int]))))
 
     (testing "push to stacks"
-      (is (= (state/push-to-stacks mock-state ["z" 10 "y"] [:string :int :string])
-             {:inputs {}
-              :stdout ""
+      (is (= {:inputs  {}
+              :stdout  ""
               :untyped (state/queue)
-              :stacks {:int '(10 5 3 1) :string '("y" "z" "a" "b") :exec '()}}))
-      (is (= (state/push-to-stacks mock-state [11] [:int])
-             {:inputs {}
-              :stdout ""
+              :stacks  {:int '(10 5 3 1) :string '("y" "z" "a" "b") :exec '()}}
+             (state/push-to-stacks mock-state ["z" 10 "y"] [:string :int :string])))
+      (is (= {:inputs  {}
+              :stdout  ""
               :untyped (state/queue)
-              :stacks {:int '(11 5 3 1) :string '("a" "b") :exec '()}}))
-      (is (= (state/push-to-stacks mock-state ["puj"] [:string])
-             {:inputs {}
-              :stdout ""
+              :stacks  {:int '(11 5 3 1) :string '("a" "b") :exec '()}}
+             (state/push-to-stacks mock-state [11] [:int])))
+      (is (= {:inputs  {}
+              :stdout  ""
               :untyped (state/queue)
-              :stacks {:int '(5 3 1) :string '("puj" "a" "b") :exec '()}})))
+              :stacks  {:int '(5 3 1) :string '("puj" "a" "b") :exec '()}}
+             (state/push-to-stacks mock-state ["puj"] [:string]))))
 
     (testing "state size"
       (is (= (state/size mock-state) 5)))
