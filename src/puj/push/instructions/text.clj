@@ -1,21 +1,18 @@
 (ns puj.push.instructions.text
-  (:require [puj.push.unit :as u]))
+  (:require [puj.push.instruction :as i]))
 
 
 (defn instructions []
-  {
-   :string-take
+  [
    (with-meta
-     (u/simple-instruction
-       [:string :int] [:string] 0
-       #(vector (apply str (take %2 %1))))
+     (i/simple-instruction
+       :string-take [:string :int] :string 0
+       #(apply str (take %2 %1)))
      {:puj.push.instruction/doc "Pushes the first `n` characters of the top string as a new string."})
 
-   :string-drop
    (with-meta
-     (u/simple-instruction
-       [:string :int] [:string] 0
-       #(vector (apply str (drop %2 %1))))
+     (i/simple-instruction
+       :string-drop [:string :int] :string 0
+       #(apply str (drop %2 %1)))
      {:puj.push.instruction/doc "Pushes the first `n` characters of the top string as a new string."})
-
-   })
+  ])
