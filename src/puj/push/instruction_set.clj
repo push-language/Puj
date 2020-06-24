@@ -1,13 +1,17 @@
 (ns puj.push.instruction-set
-  (:require [clojure.spec.alpha :as s]
+  (:require [clojure.spec.alpha :as spec]
             [clojure.set :as set]
-            [puj.push.instruction :as i]
+            [puj.push.unit :as u]
             [puj.push.instructions.numeric :as numeric]
-            [puj.push.instructions.text :as text]))
+            [puj.push.instructions.text :as text]
+            [puj.util :refer [keyword-to-str]]))
 
 
-(s/def ::instruction-set
-  (s/map-of ::i/name ::i/instruction))
+(spec/def ::push-instruction
+  (partial extends? u/PushInstruction))
+
+(spec/def ::instruction-set
+  (spec/map-of keyword? ::push-instruction :conform-keys true))
 
 
 (defn- base-instruction-generators []
@@ -18,32 +22,32 @@
 (defn base-instruction-set
   "See `puj.push.core.base-instruction-set`."
   [& {:keys [name-regex related-stacks]}]
-  (->> (base-instruction-generators)
-       (mapcat (fn [gen]
-                 (let [name-pred #(re-matches name-regex (name (::i/name %)))
-                       stack-pred #(some (set related-stacks) (i/required-stacks %))
-                       pred (cond
-                              (and (nil? name-regex) (nil? related-stacks))
-                              (fn [_] true)
+  ; @TODO: This implementation is slow and ugly. Replace later. DRY!
+  (apply merge
+    (map (fn [gen]
+           (->> (gen)
+                (filter (fn [[name instruction]]
+                          (cond
+                            (and (nil? name-regex) (nil? related-stacks))
+                            true
 
-                              (nil? name-regex)
-                              stack-pred
+                            (nil? name-regex)
+                            (some (set related-stacks) (u/required-stacks instruction))
 
-                              (nil? stack-pred)
-                              name-pred
+                            (nil? related-stacks)
+                            (re-matches name-regex (keyword-to-str name))
 
-                              :else
-                              #(and (name-pred %) (stack-pred %)))]
-                   (->> (gen)
-                        (filter pred)
-                        (map (fn [i] [(::i/name i) i]))))))
-       (into {})))
+                            :else
+                            (and (some (set related-stacks) (u/required-stacks instruction))
+                                 (re-matches name-regex (keyword-to-str name))))))
+                (into {})))
+         (base-instruction-generators))))
 
 
 (defn register
   "See `puj.push.core.instruction-set-register`."
-  [instruction-set instruction]
-  (assoc instruction-set (::i/name instruction) instruction))
+  [instruction-set name instruction]
+  (assoc instruction-set name instruction))
 
 
 (defn unregister
@@ -54,12 +58,17 @@
 
 (defn register-all
   "See `puj.push.core.instruction-set-register-all`."
-  [instruction-set instructions]
-  (s/valid? (s/coll-of ::i/instruction) instructions)
-  (merge instruction-set
-         (into {} (map (fn [i] [(::i/name i) i])))))
+  [instruction-set instruction-map]
+  (spec/valid? ::instruction-set instruction-map)
+  (merge instruction-set instruction-map))
+
+
+; @TODO: Add input instructions.
+;(defn register-input-instructions
+;  "See `puj.push.core.instruction-set-register-inputs`."
+;  [instruction-set input-names])
 
 
 (defn required-stacks
   [instrution-set]
-  (reduce set/union (map i/required-stacks (vals instrution-set))))
+  (reduce set/union (map #(u/required-stacks %) (vals instrution-set))))

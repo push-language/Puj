@@ -19,14 +19,6 @@ there will be the first [Clojars](https://clojars.org/) release along with
 In the meantime, we welcome any and all contributions. To learn more about how to 
 be most helpful, see our the CONTRIBUTING file.
 
-## Tests
-
-To run test, run the following command in the project root.
-
-```commandline
-clojure -A:test
-```
-
 ## License
 
 Copyright © 2019 FIXME

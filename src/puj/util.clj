@@ -1,9 +1,8 @@
 (ns puj.util)
 
 
-(defn ensure-seq
-  "If thing is a sequential collection, returns it. Otherwise, returns it in a list."
-  [thing]
-  (if (sequential? thing)
-    thing
-    (list thing)))
+(defn keyword-to-str
+  "Converts a keyword to a string without the colon."
+  [keyword]
+  (let [s (str keyword)]
+    (subs s 1 (count s))))

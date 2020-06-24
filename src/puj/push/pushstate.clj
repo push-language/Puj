@@ -16,12 +16,12 @@
 
 
 (defn make-state
-  "Creates a Push state with one stack per Push type in the given `type-library`."
-  [type-library]
-  (typ/validate-type-library type-library)
+  "Creates a Push state with one stack per Push type in the given `type-set`."
+  [type-set]
+  (typ/validate-type-set type-set)
   {:inputs {}
    :stdout ""  ; @TODO: Replace with generic IO stream.
-   :stacks (zipmap (conj (typ/supported-stacks type-library) :exec) (repeat (list)))
+   :stacks (zipmap (conj (typ/supported-stacks type-set) :exec) (repeat (list)))
    :untyped (queue)})
 
 

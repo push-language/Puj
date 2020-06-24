@@ -7,8 +7,8 @@
 
 (deftest push-type-test
 
-  (let [int-type {::typ/type-name :int ::typ/spec (spec/get-spec ::typ/int) ::typ/coercer int}
-        bool-type {::typ/type-name :boolean ::typ/spec (spec/get-spec ::typ/boolean) ::typ/coercer boolean}]
+  (let [int-type {::typ/stack-name :int ::typ/spec (spec/get-spec ::typ/int) ::typ/coercer int}
+        bool-type {::typ/stack-name :boolean ::typ/spec (spec/get-spec ::typ/boolean) ::typ/coercer boolean}]
 
     (testing "check scalar type"
       (is (typ/valid? int-type 5))
@@ -34,18 +34,18 @@
         (is (= (type/coerce int-vec-type '(1.2 3.4)) [1 3]))))))
 
 
-(deftest type-library-test
+(deftest type-set-test
 
-  (let [type-library (typ/core-types)]
+  (let [type-set (typ/core-types)]
 
-    (testing "can validate a type-library"
-      (typ/validate-type-library type-library))
+    (testing "can validate a type-set"
+      (typ/validate-type-set type-set))
 
     (testing "prevent reserved stacks from being used"
       (is (thrown? AssertionError
-                   (typ/validate-type-library {:exec {::type/type-name :exec ::type/spec any? ::type/coercer identity}}))))
+                   (typ/validate-type-set #{::type/stack-name :exec ::type/spec any? ::type/coercer identity}))))
 
     (testing "can produce the corresponding stack name for a value"
-      (is (= :int (::type/type-name (typ/infer-push-type 5 type-library))))
-      (is (= :float (::type/type-name (typ/infer-push-type 1.2 type-library))))
-      (is (= :string-vector (::type/type-name (typ/infer-push-type ["hi" "bye"] type-library)))))))
+      (is (= (typ/stack-for 5 type-set) :int))
+      (is (= (typ/stack-for 1.2 type-set) :float))
+      (is (= (typ/stack-for ["hi" "bye"] type-set) :string-vector)))))

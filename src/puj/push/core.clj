@@ -32,6 +32,11 @@
   (i-set/register-all instruction-set instruction-map))
 
 
+;@TODO: (defn instruction-set-register-inputs
+;  "Register a set of input instructions based on the names of a program's input values."
+;  [instruction-set input-names])
+
+
 (defn instruction-set-unregister
   "Dissociate the instruction with the given `name` in `instruction-set`."
   [instruction-set name]
