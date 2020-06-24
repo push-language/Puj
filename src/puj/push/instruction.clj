@@ -78,7 +78,7 @@
 (defn eval-simple
   [instruction state]
   (let [input-stacks (::input-stacks instruction)
-        args (reverse (pushstate/observe-stacks state input-stacks))]
+        args (pushstate/observe-stacks state input-stacks)]
     (if (some nil? args)                                    ; Check if there are enough arguments from required stacks
       state
       (let [results (apply (::logic-fn instruction) args)]
