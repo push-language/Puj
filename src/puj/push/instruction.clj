@@ -189,6 +189,7 @@
 
 
 (defn eval-instruction
+  "Evaluates the `instruction` on the `state` based on the instruction type."
   [instruction state]
   {:pre [(s/valid? ::instruction instruction)]}
   (let [kind (instruction-type instruction)]
@@ -196,6 +197,7 @@
 
 
 (defn required-stacks
+  "Returns a set of stack names that are required by the given `instruction`."
   [instruction]
   (let [kind (instruction-type instruction)]
     (set
@@ -219,6 +221,12 @@
 
 
 (defn instruction-meta
+  "Creates and instruction meta.
+
+  If given an `instruction`, a meta will be constructed from components of the instruction.
+
+  If given a `name` and `code-blocks` count, will create an instruciton meta from scratch.
+  "
   ([instruction]
    {:pre [(s/valid? ::instruction instruction)]}
    (select-keys instruction [::name ::code-blocks]))

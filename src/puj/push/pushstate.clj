@@ -1,7 +1,8 @@
 (ns puj.push.pushstate
   (:require [clojure.spec.alpha :as spec]
             [puj.push.stack :as stack]
-            [puj.push.type :as typ])
+            [puj.push.type :as typ]
+            [puj.push.config :as cfg])
   (:import (clojure.lang PersistentQueue)))
 
 
@@ -12,17 +13,53 @@
 
 
 (spec/def ::state
-  (spec/keys :req-un [::inputs ::stdout ::stacks ::untyped]))
+  (spec/keys :req [::stack/manager]
+             :req-un [::inputs ::stdout ::stacks ::untyped]))
 
 
 (defn make-state
-  "Creates a Push state with one stack per Push type in the given `type-library`."
-  [type-library]
+  "Creates a Push state.
+
+  The state will have one stack per Push type in the given `type-library`.
+
+  The `push-config` is used to create a `stack-manager` that will enforce limits on the values
+  being pushed onto the stacks.
+
+  Push states hold:
+  - a map of `:inputs` that can be referenced by input units.
+  - a `:stdout` string that is appended to by printing instructions.
+  - an `:untyped` queue that can accept instruction results with unknown types.
+  - a stack manager that enforces limits on values pushed to stacks of certain types.
+  "
+  [type-library push-config]
   (typ/validate-type-library type-library)
-  {:inputs {}
-   :stdout ""  ; @TODO: Replace with generic IO stream.
-   :stacks (zipmap (conj (typ/supported-stacks type-library) :exec) (repeat (list)))
-   :untyped (queue)})
+  {:inputs         {}
+   :stdout         ""  ; @TODO: Replace with generic IO stream.
+   :stacks         (zipmap (conj (typ/supported-stacks type-library) :exec) (repeat (list)))
+   :untyped        (queue)
+   ::stack/manager {::typ/type-library type-library
+                    ::cfg/push-config  push-config}})
+
+
+(defn prepare-for-stack
+  [type-name value stack-manager]
+  (if (contains? typ/reserved-stack-names type-name)
+    value
+    (let [stack-type (type-name (::typ/type-library stack-manager))
+          push-config (::cfg/push-config stack-manager)
+          safe-value (cond-> value
+
+                             (typ/num-type? stack-type)
+                             (cfg/limit-number push-config)
+
+                             (= (::typ/type-name stack-type) :string)
+                             (cfg/limit-string push-config)
+
+                             (typ/coll-type? stack-type)
+                             (cfg/limit-collection push-config))]
+      (if (typ/valid? stack-type safe-value)
+        safe-value
+        (typ/coerce stack-type safe-value)))))
 
 
 (defn get-stack
@@ -40,7 +77,7 @@
 (defn set-stack
   "Sets a stack to be the new collection."
   [state stack-name coll]
-  (assoc-in state [:stacks stack-name] coll))
+  (assoc-in state [:stacks stack-name] (apply list (map #(prepare-for-stack stack-name % (::stack/manager state)) coll))))
 
 
 (defn flush-stack
@@ -52,8 +89,9 @@
 (defn push-item
   "Pushes a value to a stack."
   [state stack-name value]
-  (let [stk (get-stack state stack-name)]
-    (set-stack state stack-name (stack/push-item stk value))))
+  (let [coerced (prepare-for-stack stack-name value (::stack/manager state))
+        stk (get-stack state stack-name)]
+    (set-stack state stack-name (stack/push-item stk coerced))))
 
 
 (defn pop-item
@@ -63,9 +101,9 @@
   If a `0 <= ndx < (count stack)` is provided, the element at the index is removed.
   Otherwise the state is unchanged."
   ([state stack-name]
-    (pop-item state stack-name 0))
+   (pop-item state stack-name 0))
   ([state stack-name ndx]
-    (let [stk (get-stack state stack-name)]
+   (let [stk (get-stack state stack-name)]
      (set-stack state stack-name (stack/pop-item stk ndx)))))
 
 
@@ -84,15 +122,17 @@
 (defn insert-item
   "Inserts a value at position `ndx` in a stack."
   [state stack-name ndx value]
-  (let [stk (get-stack state stack-name)]
-    (set-stack state stack-name (stack/insert stk ndx value))))
+  (let [coerced (prepare-for-stack stack-name value (::stack/manager state))
+        stk (get-stack state stack-name)]
+    (set-stack state stack-name (stack/insert stk ndx coerced))))
 
 
 (defn set-nth-item
   "Overwrites a value at position `ndx` in a stack."
   [state stack-name ndx value]
-  (let [stk (get-stack state stack-name)]
-    (set-stack state stack-name (stack/set-nth stk ndx value))))
+  (let [coerced (prepare-for-stack stack-name value (::stack/manager state))
+        stk (get-stack state stack-name)]
+    (set-stack state stack-name (stack/set-nth stk ndx coerced))))
 
 
 (defn load-program
@@ -159,7 +199,7 @@
 (defn size
   "Return the size of the Push state.
 
-  Equal to the sum of all stack sizes and they size of the untyped queue."
+  Equal to the sum of all stack sizes and the size of the untyped queue."
   [state]
   (+ (apply + (map count (vals (:stacks state))))
      (count (:untyped state))))
