@@ -22,6 +22,14 @@
       {:int '(2 1)}  ;; Initial state of stacks.
       {:int '(3)}    ;; Expected resulting state of stacks.
 
+      :int-add       ;; Test not enough arguments
+      {:int '(-29)}
+      {:int '(-29)}
+
+      :int-add       ;; Test not popping too many arguments
+      {:int '(4 -92 7)}
+      {:int '(-88 7)}
+
       :int-sub
       {:int '(3 1)}
       {:int '(-2)}
@@ -34,9 +42,29 @@
       {:int '(50 3)}
       {:int '(150)}
 
+      ;; :int-mod
+      ;; {:int '(5 33 -12)}
+      ;; {:int '(3 -12)}
+
+      ;; :int-mod
+      ;; {:int '(-5 33 -12)}
+      ;; {:int '(-2 -12)}
+
+      ;; :int-mod
+      ;; {:int '(5 -33 -12)}
+      ;; {:int '(2 -12)}
+
       :int-inc
       {:int '(50)}
       {:int '(51)}
+
+      :int-inc      ;; Test empty stack
+      {:int '()}
+      {:int '()}
+
+      :int-dec
+      {:int '(50 100 150)}
+      {:int '(49 100 150)}
 
       :string-take
       {:string '("abcde") :int '(3)}
