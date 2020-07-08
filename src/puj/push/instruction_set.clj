@@ -16,7 +16,12 @@
 
 
 (defn base-instruction-set
-  "See `puj.push.core.base-instruction-set`."
+  "Returns a map containing instructions from the core set provided by Puj.
+
+   If `name-regex` is provided, only the instructions with a matching name will be included
+   in the output. If a set of `related-stacks` is provided, only the instructions which
+   manipulate one or more of those stacks is included.
+   "
   [& {:keys [name-regex related-stacks]}]
   (->> (base-instruction-generators)
        (mapcat (fn [gen]
@@ -41,21 +46,21 @@
 
 
 (defn register
-  "See `puj.push.core.instruction-set-register`."
+  "Associate an `instruction` with a `name` in the `instruction-set`."
   [instruction-set instruction]
   (assoc instruction-set (::i/name instruction) instruction))
 
 
 (defn unregister
-  "See `puj.push.core.instruction-set-unregister`."
+  "Dissociate the instruction with the given `name` in `instruction-set`."
   [instruction-set name]
   (dissoc instruction-set name))
 
 
 (defn register-all
-  "See `puj.push.core.instruction-set-register-all`."
+  "Register a map of instructions (keys are names, values are instructions) into the `instruction-set`."
   [instruction-set instructions]
-  (s/valid? (s/coll-of ::i/instruction) instructions)
+  {:pre [(s/valid? (s/coll-of ::i/instruction) instructions)]}
   (merge instruction-set
          (into {} (map (fn [i] [(::i/name i) i])))))
 

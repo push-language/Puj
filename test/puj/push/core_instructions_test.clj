@@ -1,13 +1,14 @@
 (ns puj.push.core-instructions-test
   (:require [clojure.test :refer :all]
             [puj.push.interpreter :as interp]
+            [puj.push.instruction :as i]
             [puj.push.instruction-set :as i-set]
-            [puj.push.pushstate :as st]))
+            [puj.test-support :as ts]))
 
 
 (deftest core-instructions
   (let [ctx (interp/push-context)
-        stacks->state #(assoc (st/make-state {}) :stacks %)]
+        get-instr-meta (fn [instr-name] (i/instruction-meta (get-in ctx [::i-set/instruction-set instr-name])))]
 
     ;; To create a unit test of a push instruction, we must declare an initial push-state and an
     ;; expected push-state. The push-state returned by eval-ing the instruction on the initial push-state
@@ -15,8 +16,8 @@
 
     (are
       [instr-name initial expected]
-      (= (stacks->state expected)
-         (interp/eval-push-unit (stacks->state initial) (get-in ctx [::i-set/instruction-set instr-name]) ctx))
+      (= (ts/stacks->state expected)
+         (interp/eval-push-unit (ts/stacks->state initial) (get-instr-meta instr-name) ctx))
 
       :int-add       ;; Name of the instruction being tested.
       {:int '(2 1)}  ;; Initial state of stacks.

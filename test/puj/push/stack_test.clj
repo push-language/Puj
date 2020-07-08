@@ -7,23 +7,23 @@
   (let [mock-stack '(:a :b :c :d)]
 
     (testing "push item"
-      (is (= (stack/push-item mock-stack :z) '(:z :a :b :c :d))))
+      (is (= '(:z :a :b :c :d) (stack/push-item mock-stack :z))))
 
     (testing "pop"
-      (is (= (stack/pop-item mock-stack) '(:b :c :d)))
-      (is (= (stack/pop-item mock-stack 2) '(:a :b :d)))
-      (is (= (stack/pop-item '() 2) '())))
+      (is (= '(:b :c :d) (stack/pop-item mock-stack)))
+      (is (= '(:a :b :d) (stack/pop-item mock-stack 2)))
+      (is (= '() (stack/pop-item '() 2))))
 
     (testing "nth"
-      (is (= (stack/nth-item mock-stack 2) :c))
+      (is (= :c (stack/nth-item mock-stack 2)))
       (is (nil? (stack/nth-item '() 1))))
 
     (testing "insert"
-      (is (= (stack/insert mock-stack 0 :z) '(:z :a :b :c :d)))
-      (is (= (stack/insert mock-stack 2 :z) '(:a :b :z :c :d)))
-      (is (= (stack/insert '() 0 :z) '(:z))))
+      (is (= '(:z :a :b :c :d) (stack/insert mock-stack 0 :z)))
+      (is (= '(:a :b :z :c :d) (stack/insert mock-stack 2 :z)))
+      (is (= '(:z) (stack/insert '() 0 :z))))
 
     (testing "set-nth"
-      (is (= (stack/set-nth mock-stack 0 :z) '(:z :b :c :d)))
-      (is (= (stack/set-nth mock-stack 2 :z) '(:a :b :z :d)))
-      (is (= (stack/set-nth '() 0 :z) '(:z))))))
+      (is (= '(:z :b :c :d) (stack/set-nth mock-stack 0 :z)))
+      (is (= '(:a :b :z :d) (stack/set-nth mock-stack 2 :z)))
+      (is (= '(:z) (stack/set-nth '() 0 :z))))))

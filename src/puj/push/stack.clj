@@ -1,4 +1,13 @@
-(ns puj.push.stack)
+(ns puj.push.stack
+  (:require [clojure.spec.alpha :as s]
+            [puj.push.config :as cfg]
+            [puj.push.type :as t]))
+
+
+(s/def ::items (s/coll-of some? :kind list))
+
+(s/def ::manager
+  (s/keys :req [::t/type-library ::cfg/push-config]))
 
 
 (defn push-item
@@ -14,7 +23,7 @@
   If a `0 <= ndx < (count stack)` is provided, the element at the index is removed.
   Otherwise the stack is unchanged."
   ([stack]
-    (pop stack))
+   (pop stack))
   ([stack ndx]
    (if (or (<= (count stack) ndx)
            (neg? ndx))
