@@ -8,10 +8,17 @@
 
 
 (deftest push-interpreter-test
-  (let [ctx (interp/push-context)
+  ;; Tests for the functionality of the push-interpreter.
+  ;; Primarily, we will test the execution of entire push-programs.
+
+  ;; @todo Add tests for the other functions in this namespace.
+
+  (let [;; First we create a push-context (stack types and instruction set). Here we use the default.
+        ctx (interp/push-context)
         instr-set (::i-set/instruction-set ctx)]
 
     (testing "simple program execution"
+      ;; Tests a simple, flat, program that uses a single stack.
       (let [program (prog/make-program
                       (list (u/literal 1 :int) (u/literal 2 :int) (:int-add instr-set))
                       {}
@@ -22,6 +29,7 @@
                (interp/run program {} ctx :validate? true)))))
 
     (testing "nested code block execution"
+      ;; Tests the execution of a program that contains a nested code block.
       (let [program (prog/make-program
                       (list (u/literal 1 :int) (list (u/literal 2 :int) (:int-add instr-set)))
                       {}

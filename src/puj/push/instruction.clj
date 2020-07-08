@@ -133,7 +133,7 @@
   (let [results ((::logic-fn instruction) state)]
     (if (= results :revert)
       state
-      (pushstate/push-to-stacks state results (::output-stacks instruction)))))
+      (pushstate/push-to-stacks state (u/ensure-seq results) (::output-stacks instruction)))))
 
 
 (defn emit-many-of-type-instruction
