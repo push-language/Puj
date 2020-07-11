@@ -1,6 +1,5 @@
 (ns puj.push.instruction
   (:require [clojure.spec.alpha :as s]
-            [cuerdas.core :as str]
             [puj.push.pushstate :as pushstate]
             [puj.util :as u]))
 
