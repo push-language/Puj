@@ -1,6 +1,5 @@
 {:paths ["src"]
- :deps {org.clojure/test.check {:mvn/version "0.10.0"}
-        funcool/cuerdas {:mvn/version "2.2.0"}}
+ :deps {org.clojure/test.check {:mvn/version "0.10.0"}}
  :aliases {:test {:extra-paths ["test"]
                   :extra-deps  {lambdaisland/kaocha {:mvn/version "0.0-529"}}
                   :main-opts   ["-m" "kaocha.runner"]}}}
